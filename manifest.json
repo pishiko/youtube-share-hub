@@ -1,6 +1,6 @@
 {
   "name": "Youtube Share Hub",
-  "short_name": "Youtube Share",
+  "short_name": "You Share",
   "theme_color": "#c4302b",
   "background_color": "#000000",
   "display": "standalone",
@@ -50,7 +50,7 @@
   ],
   "splash_pages": null,
   "share_target":{
-    "action":"index.html",
+    "action":"/youtube-share-hub/",
     "method":"GET",
     "params":{
         "title":"text",
