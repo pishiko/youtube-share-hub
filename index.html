@@ -1,0 +1,128 @@
+<html>
+    <head>
+        <title>Youtube Share Hub</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <!-- vue.js -->
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <link rel="manifest" href="manifest.json">
+    </head>
+    <body>
+        <div id="app" class="container-fluid">
+            <h1 class="display-3">Youtube Share Hub <small class="text-muted">for Android</small></h1>
+            <br>
+            <div v-if="isError" class="alert alert-danger" role="alert">
+                <h3>Error Occurred</h3>
+                <p>うまく共有できませんでした。よろしければ<a href="https://twitter.com/pishitaro_" target="_blank">@pishitaro_</a>まで報告お願いします。</p>
+                <h4>info</h4>
+                <li><b>text</b> {{ text }}</li>
+                <li><b>url</b> {{ url }}</li>
+                <li><b>link</b> {{ link }}</li>
+            </div>
+            <div v-if="!isShared">
+                
+                <h2>What is this?</h2>
+                <p>YoutubeなどのAndroidアプリの共有からのツイートがURLだけなのを、タイトル付きにするWebアプリです。</p>
+                <br>
+
+                <h2>How to use?</h2>
+                <p>Android版Chromeで右上のメニュー → 「ホーム画面に追加する」</p>
+                <p>Youtubeなど各アプリの共有から「Youtube Share Hub」を選択</p>
+                <br>
+                
+                <h2>Support</h2>
+                <h4>Android</h4>
+                <li>Youtube</li>
+                <li>Youtube Music</li>
+                <li>Google Play Music</li>
+                <br>
+                <h4>iOS</h4>
+                <p>Not supported</p>
+                <br>
+                
+                <h2>Bug Report</h2>
+                <a href="https://twitter.com/pishitaro_" target="_blank">@pishitaro_</a>
+                <br>
+
+            </div>
+            <div v-else>
+                <h2>自動的に遷移しない場合は<a v-bind:href="tweetlink">ここ</a>をクリック</h2>
+            </div>
+        </div>
+        <script>
+            //<!-- service worker -->
+            if ('serviceWorker' in navigator) {
+                navigator
+                .serviceWorker
+                .register('sw.js').then(function(registration){
+                    //console.log('success! ',registration.scope)
+                })
+                .catch(function(err){
+                    //console.log('failed! ',err);
+                });
+            }
+            
+            var app = new Vue({
+                el: '#app',
+                data:{
+                    isShared : false,
+                    isError : false,
+                    text : "none",
+                    url : "none",
+                    link : "none",
+                    tweetlink : "/"
+                },
+                methods:{
+                    sendToTweet : function(text,url,link){
+                        if(text===null && url===null && link===null){
+                            this.isShared = false
+                        }else if(text!==null && url!=null){
+                            this.tweetlink = this.getTweetLink(text,url)
+                            this.isShared = true
+                            window.location.href = this.tweetlink
+                        }else{
+                            this.setError(text,url,link)
+                        }
+                    },
+                    setError : function(text,url,link){
+                        this.text = text?text:"null"
+                        this.url = url?url:"null"
+                        this.link = link?link:"null"
+                        isError = true
+                    },getTweetLink : function(text,url){
+                        const YOUTUBE_TAIL = '" を YouTube で見る'
+                        const NOWPLAYING = " #NowPlaying"
+
+                        var name = ""
+                        if(url.startsWith("https://music.youtube.com/")){
+                            name = text.substr(1,text.length-1-YOUTUBE_TAIL.length)
+                            name += NOWPLAYING
+
+                        }else if(url.startsWith("https://youtu.be/")){
+                            name = text.substr(1,text.length-1-YOUTUBE_TAIL.length)
+
+                        }else if(url.startsWith("https://play.google.com/")){
+                            name = text + NOWPLAYING
+                        }else{
+                            name = text
+                        }
+                        return encodeURIComponent('https://twitter.com/intent/tweet?text='+name+'&url='+url)
+                    }
+                }
+            })
+
+                    
+            window.addEventListener('load', () => {
+                var parsedUrl = new URL(window.location);
+                var text = parsedUrl.searchParams.get('text')
+                var url = parsedUrl.searchParams.get('url')
+                var link = parsedUrl.searchParams.get('link')
+                
+                app.sendToTweet(text,url,link)
+            });
+        </script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    </body>
+</html>
