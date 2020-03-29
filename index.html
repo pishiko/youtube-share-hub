@@ -77,9 +77,10 @@
                         if(text===null && url===null && link===null){
                             this.isShared = false
                         }else if(text!==null && url!=null){
-                            this.tweetlink = this.getTweetLink(text,url)
+                            var tlink = this.getTweetLink(text,url)
+                            this.tweetlink = tlink
                             this.isShared = true
-                            window.location.href = this.tweetlink
+                            window.location.href = tlink
                         }else{
                             this.setError(text,url,link)
                         }
@@ -106,7 +107,7 @@
                         }else{
                             name = text
                         }
-                        return encodeURIComponent('https://twitter.com/intent/tweet?text='+name+'&url='+url)
+                        return 'https://twitter.com/intent/tweet?text='+encodeURIComponent(name)+'&url='+encodeURIComponent(url)
                     }
                 }
             })
